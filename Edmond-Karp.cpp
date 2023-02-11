@@ -25,15 +25,16 @@ class maxFlow{
 
 vector<int> maxFlow :: shortestPath(){
     queue<int> BFS;
-    vector<int> visited(n, 0);
+    vector<int> visited(n, -1);
     BFS.push(s);
     visited[s] = 1;
     while(!BFS.empty()){
         int curr = BFS.front();
         BFS.pop();
+        //cout << "current node : " << curr << endl;
         for(auto it : adj[curr]){
             int k = it.first;
-            if(visited[k] == 0){
+            if(visited[k] == -1){
                 visited[k] = curr;
                 BFS.push(k);
             }
@@ -41,7 +42,7 @@ vector<int> maxFlow :: shortestPath(){
     }
     int it = t;
     vector<int> path;
-    if(visited[t] == 0) return path;
+    if(visited[t] == -1) return path;
     while(it != s){
         path.push_back(it);
         it = visited[it];
@@ -55,13 +56,16 @@ int maxFlow :: getCapacity(int a, int b){
     for(auto it : adj[a]){
         if(it.first == b) return it.second;
     }
+    return 0;
 }
 
 void maxFlow :: push(vector<int> path){
+    //cout << "entered" << endl;
     int capacity = INT_MAX;
     for(int i = 0; i < path.size() - 1; i++){
         capacity = min(capacity, getCapacity(path[i], path[i + 1]));
     }
+    //cout << "capacity" << capacity << endl;
     maxflow += capacity;
     for(int i = 0; i < path.size() - 1; i++){
         changeEdge(path[i], path[i + 1], -capacity);
@@ -84,9 +88,12 @@ void maxFlow :: changeEdge(int a, int b, int w){
 
 int maxFlow :: solve(){
     vector<int> path = {0};
-    while(!path.empty()){
+    while(1){
+        //cout << "Finding path" << endl;
         path = shortestPath();
+        if(path.empty()) break;
         push(path);
+        //cout << "Push Successful" << endl;
     }
     return maxflow;
 }
@@ -103,6 +110,6 @@ int32_t main(){
         cin >> l >> r >> c;
         adj[l].push_back(make_pair(r, c));
     }
-    maxFlow mf = new maxFlow(n, adj, 0, n - 1);
+    maxFlow* mf = new maxFlow(n, adj, 0, n - 1);
     cout << "maxflow = "<< mf->solve() << endl;
 }
